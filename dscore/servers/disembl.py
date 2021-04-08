@@ -1,33 +1,44 @@
 import re
 import requests
 
-from .utils import csv2frame, retry
+import numpy as np
+import pandas as pd
 
 
 submit_base_url = 'http://dis.embl.de/cgiDict.py?key=process&sequence_string='
-result_base_url = 'http://dis.embl.de/'
 
 
-def submit(seq):
+def submit_and_get_result(seq):
     submit_job = requests.get(submit_base_url + seq)
     submit_job.raise_for_status()
-    result_url = result_base_url + re.search('DisEMBLout/\w+.disEMBL', submit_job.text).group()
-    return result_url
+    result = submit_job.text
+    return result
 
 
-@retry
-def get_result(output_url):
-    r = requests.get(output_url)
-    r.raise_for_status()
-    return r.text.strip()
-
-
-def parse_result(text):
-    # TODO
-    return csv2frame(text)
+def parse_result(text, seq):
+    # we can't use the raw scores, cause the software uses internal hidden
+    # thresholds that are even inconsistent within one sequence
+    ranges = {}
+    modes = ['LOOPS', 'HOTLOOPS', 'REM465']
+    # get ranges of disordered regions
+    for mode in modes:
+        # find ranges in text
+        regions = re.search(f'none_{mode}.*\n(.*)<br>', text).group(1).split(', ')
+        rg = []
+        # convert in python range objects
+        for r in regions:
+            x, y = [int(n) for n in r.split('-')]
+            rg.append(range(x - 1, y))
+        ranges[f'disembl_{mode}'] = rg
+    # construct dataframe with bool values
+    modes_full = [f'disembl_{mode}' for mode in modes]
+    df = pd.DataFrame(np.zeros((len(seq), len(modes)), dtype=bool), columns=modes_full)
+    for mode, regions in ranges.items():
+        for rg in regions:
+            df[mode].iloc[rg] = True
+    return df
 
 
 def get_disembl(seq):
-    result_url = submit(seq)
-    raw_output = get_result(result_url)
-    return parse_result(raw_output)
+    result = submit_and_get_result(seq)
+    return parse_result(result, seq)
