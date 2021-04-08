@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 
-from .utils import csv2frame, retry, JobNotDone
+from ..utils import csv2frame, retry, JobNotDone
 
 
 base_url = 'http://prdos.hgc.jp/cgi-bin/top.cgi'
@@ -34,7 +34,7 @@ def parse_result(result):
     return csv2frame(result, header=0)
 
 
-def get_pondr(seq):
+def get_prdos(seq):
     submitted_driver = submit(seq)
     result = get_result(submitted_driver)
     return parse_result(result)

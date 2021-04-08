@@ -1,7 +1,8 @@
 from selenium import webdriver
 import pandas as pd
+import numpy as np
 
-from .utils import retry, JobNotDone, cs
+from ..utils import retry, JobNotDone
 
 
 base_url = 'http://old.protein.bio.unipd.it/cspritz/'
@@ -13,17 +14,17 @@ def submit(seq, mode='long'):
     driver = webdriver.Firefox()
     driver.get(base_url)
     driver.find_element_by_id('sequence').send_keys(seq)
-    # submit and confirm
-    base_xpath = 'html/body/div[4]/form'
-    mode_selector = base_xpath + f'/fieldset[3]/table/tbody/tr[2]/td/select/option[contains(text(), "{mode}")]'
+    # submit. This is an ugly xpath... I hope it stays as is
+    xpath = f'html/body/div[4]/form/fieldset[3]/table/tbody/tr[2]/td/select/option[contains(text(), "{mode}")]'
+    mode_selector = driver.find_element_by_xpath(xpath)
     mode_selector.click()
-    driver.find_element_by_xpath(base_xpath + '/input[1]').click()
+    driver.find_element_by_name('Submit Query').click()
     return driver
 
 
 @retry
 def get_result(driver):
-    if driver.find_element_by_xpath('/html/body/div[4]/p/span') != 'finished':
+    if driver.find_element_by_xpath('/html/body/div[4]/p/span').text != 'finished':
         raise JobNotDone('still waiting')
     # open text results
     result_url = driver.find_element_by_xpath('/html/body/div[6]/center/b/table/tbody/tr[2]/td[2]/a').get_property('href')
@@ -34,15 +35,17 @@ def get_result(driver):
     return result
 
 
-def parse_result(result):
-    # TODO
-    return
+def parse_result(result, mode):
+    dis_seq = result.split()[-3]  # a bit ugly, but works
+    dis_array = np.array([x == 'D' for x in dis_seq])
+    df = pd.DataFrame({f'cspritz_{mode}': dis_array})
+    return df
 
 
-def get_cspritz(seq):
+async def get_cspritz(seq):
     dfs = []
     for mode in ('long', 'short'):
         submitted_driver = submit(seq, mode=mode)
-        result = get_result(submitted_driver)
-        dfs.append(parse_result(result))
+        result = await get_result(submitted_driver)
+        dfs.append(parse_result(result, mode))
     return pd.concat(dfs, axis=1)

@@ -1,7 +1,7 @@
 import re
 import requests
 
-from .utils import csv2frame, retry
+from ..utils import csv2frame, retry
 
 
 submit_base_url = 'http://globplot.embl.de/cgiDict.py?key=process&sequence_string='

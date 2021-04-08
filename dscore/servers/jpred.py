@@ -4,7 +4,7 @@ import tempfile
 
 import jpredapi
 
-from .utils import retry, csv2frame, JobNotDone
+from ..utils import retry, csv2frame, JobNotDone
 
 
 job_in_queue = re.compile(r'currently (\d+) jobs')

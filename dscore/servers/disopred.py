@@ -1,6 +1,6 @@
 import requests
 
-from .utils import csv2frame, retry, JobNotDone
+from ..utils import csv2frame, retry, JobNotDone
 
 
 submit_base_url = 'http://bioinf.cs.ucl.ac.uk/psipred/api/submission.json'
@@ -23,27 +23,29 @@ def submit(seq):
 def get_result_location(job_url):
     r = requests.get(job_url)
     r.raise_for_status()
-    if r['state'] != 'Complete':
+    if r.json()['state'] != 'Complete':
         raise JobNotDone('Job is not complete yet')
-    result_location = r['submissions'][0]['results'][-1]['data_path']
-    result_url = f'{result_base_url}{result_location}'
-    return result_url
+    tasks = r.json()['submissions'][0]['results']
+    tasks = {t['name']: t['data_path'] for t in tasks}
+    return tasks['diso_combine']
 
 
 @retry
 def get_result(result_url):
-    res = requests.get(result_url)
+    res = requests.get(result_base_url + result_url)
     res.raise_for_status()
     return res.text
 
 
 def parse_result(result):
     data = csv2frame(result)
-    return data
+    as_bool = data[[2]] == '*'
+    as_bool.columns = ['disopred3.1']
+    return as_bool
 
 
-def get_disopred(seq):
+async def get_disopred(seq):
     job_url = submit(seq)
-    res_url = get_result_location(job_url)
-    result = get_result(res_url)
+    res_url = await get_result_location(job_url)
+    result = await get_result(res_url)
     return parse_result(result)

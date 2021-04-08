@@ -1,7 +1,7 @@
 import requests
 from xml.etree import ElementTree
 
-from .utils import retry
+from ..utils import retry
 
 
 submit_base_url = 'https://fold.weizmann.ac.il/fldbin/findex?m=xml&sq='

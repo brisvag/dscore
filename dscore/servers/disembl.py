@@ -39,6 +39,6 @@ def parse_result(text, seq):
     return df
 
 
-def get_disembl(seq):
+async def get_disembl(seq):
     result = submit_and_get_result(seq)
     return parse_result(result, seq)

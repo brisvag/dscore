@@ -1,6 +1,6 @@
 from selenium import webdriver
 
-from .utils import csv2frame
+from ..utils import csv2frame
 
 
 base_url = 'http://www.pondr.com/'

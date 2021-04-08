@@ -1,7 +1,7 @@
 from selenium import webdriver
 import pandas as pd
 
-from .utils import csv2frame
+from ..utils import csv2frame
 
 
 base_url = 'http://original.disprot.org/metapredictor.php'

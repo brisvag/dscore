@@ -12,15 +12,15 @@ from .seg import get_seg
 
 
 get_functions = {
-    'cspritz': get_cspritz,
+    # 'cspritz': get_cspritz,
     'disembl': get_disembl,
     'disopred': get_disopred,
-    'disprot': get_disprot,
-    'foldindex': get_foldindex,
-    'globplot': get_globplot,
-    'iupred': get_iupred,
-    'jpred': get_jpred,
-    'pondr': get_pondr,
-    'prdos': get_prdos,
-    'seg': get_seg,
+    # 'disprot': get_disprot,
+    # 'foldindex': get_foldindex,
+    # 'globplot': get_globplot,
+    # 'iupred': get_iupred,
+    # 'jpred': get_jpred,
+    # 'pondr': get_pondr,
+    # 'prdos': get_prdos,
+    # 'seg': get_seg,
 }

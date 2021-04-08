@@ -1,8 +1,7 @@
 from io import StringIO
-from time import sleep
+import asyncio
 
 import pandas as pd
-from selenium import webdriver
 
 
 def csv2frame(string, **kwargs):
@@ -21,23 +20,22 @@ def retry(func):
     if the failure is recognised simply as an incomplete job, continue indefinitely
     otherwise, stop after 10 failures
     """
-    def wrapper(*args, **kwargs):
+    async def wrapper(*args, **kwargs):
         attempt = 1
         retries = []
         fails = []
         while True:
             try:
-                print(f'running {func} for the {attempt} time')
                 ret = func(*args, **kwargs)
             except JobNotDone as e:
                 retries.append(e)
-                sleep(10)
+                await asyncio.sleep(10)
             except Exception as e:
                 attempt += 1
                 fails.append(e)  # TODO do something with this
                 if attempt >= 10:
                     break
-                sleep(10)
+                await asyncio.sleep(10)
             else:
                 return ret
         else:
