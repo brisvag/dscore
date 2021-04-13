@@ -4,7 +4,7 @@ import tempfile
 
 import jpredapi
 
-from ..utils import retry, csv2frame, JobNotDone
+from ..utils import retry, csv2frame, JobNotDone, ensure_success
 
 
 job_in_queue = re.compile(r'currently (\d+) jobs')
@@ -28,7 +28,7 @@ def get_result(job_id):
         if match := job_in_queue.search(res.text):
             raise JobNotDone(f'job {job_id} is in queue after {match.group(1)} other jobs')
         elif match := job_incomplete.search(res.text):
-            raise JobNotDone(f'job {job_id} is not complete yet {match.group(1)}')
+            raise JobNotDone(f'job {job_id} is not complete yet ({match.group(1)})')
         elif job_done.search(res.text):
             result_file = Path(temp_dir) / job_id / f'{job_id}.concise.fasta'   # TODO which file? how to parse?
             with open(result_file, 'r') as f:
@@ -38,12 +38,14 @@ def get_result(job_id):
     return result
 
 
-# def parse_result(result):
-    # data = csv2frame(result)
-    # return data
+def parse_result(result):
+    # TODO: anything useful here?
+    #data = csv2frame(result)
+    return None
 
 
-def get_jpred(seq):
+@ensure_success
+async def get_jpred(seq):
     job_id = submit(seq)
     result = get_result(job_id)
     # return parse_result(result)

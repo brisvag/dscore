@@ -1,6 +1,9 @@
 import requests
 
-from ..utils import csv2frame, retry, JobNotDone
+from ..utils import csv2frame, retry, JobNotDone, ensure_success
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 submit_base_url = 'http://bioinf.cs.ucl.ac.uk/psipred/api/submission.json'
@@ -24,7 +27,7 @@ def get_result_location(job_url):
     r = requests.get(job_url)
     r.raise_for_status()
     if r.json()['state'] != 'Complete':
-        raise JobNotDone('Job is not complete yet')
+        raise JobNotDone
     tasks = r.json()['submissions'][0]['results']
     tasks = {t['name']: t['data_path'] for t in tasks}
     return tasks['diso_combine']
@@ -44,8 +47,12 @@ def parse_result(result):
     return as_bool
 
 
+@ensure_success
 async def get_disopred(seq):
+    logger.debug('submitting')
     job_url = submit(seq)
+    logger.debug('waiting for result')
     res_url = await get_result_location(job_url)
+    logger.debug('fetching result')
     result = await get_result(res_url)
     return parse_result(result)

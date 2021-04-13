@@ -1,1 +1,1 @@
-from .servers import get_functions
+from .servers import sequence_disorder, general_disorder

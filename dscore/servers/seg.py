@@ -1,4 +1,8 @@
+import re
+
 from selenium import webdriver
+
+from ..utils import ranges2frame
 
 
 base_url = 'https://mendel.imp.ac.at/METHODS/seg.server.html'
@@ -14,9 +18,13 @@ def submit_and_get_result(seq):
     return result
 
 
-def parse_result(result):
-    # TODO
-    return result
+def parse_result(result, seq):
+    ranges = []
+    for line in result.split('\n'):
+        # TODO: now it's stuff on the right that's considered disordered. Is it correct?
+        if rg := re.search(r'\s+(\d+-\d+)\s+\w+', line):
+            ranges.append(rg.group(1))
+    return ranges2frame(ranges, seq, 'seg')
 
 
 def get_seg(seq):

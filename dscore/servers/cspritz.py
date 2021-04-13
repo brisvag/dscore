@@ -2,7 +2,10 @@ from selenium import webdriver
 import pandas as pd
 import numpy as np
 
-from ..utils import retry, JobNotDone
+from ..utils import retry, JobNotDone, ensure_success
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 base_url = 'http://old.protein.bio.unipd.it/cspritz/'
@@ -25,7 +28,7 @@ def submit(seq, mode='long'):
 @retry
 def get_result(driver):
     if driver.find_element_by_xpath('/html/body/div[4]/p/span').text != 'finished':
-        raise JobNotDone('still waiting')
+        raise JobNotDone
     # open text results
     result_url = driver.find_element_by_xpath('/html/body/div[6]/center/b/table/tbody/tr[2]/td[2]/a').get_property('href')
     # open results
@@ -42,10 +45,19 @@ def parse_result(result, mode):
     return df
 
 
-async def get_cspritz(seq):
-    dfs = []
-    for mode in ('long', 'short'):
-        submitted_driver = submit(seq, mode=mode)
-        result = await get_result(submitted_driver)
-        dfs.append(parse_result(result, mode))
-    return pd.concat(dfs, axis=1)
+async def get_cspritz_mode(seq, mode):
+    logger.debug(f'submitting mode: {mode}')
+    submitted_driver = submit(seq, mode=mode)
+    logger.debug(f'waiting for results mode: {mode}')
+    result = await get_result(submitted_driver)
+    return parse_result(result, mode)
+
+
+@ensure_success
+async def get_cspritz_long(seq):
+    return await get_cspritz_mode(seq, 'long')
+
+
+@ensure_success
+async def get_cspritz_short(seq):
+    return await get_cspritz_mode(seq, 'short')

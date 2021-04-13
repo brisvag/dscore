@@ -1,13 +1,17 @@
 from selenium import webdriver
 import pandas as pd
 
-from ..utils import csv2frame
+from ..utils import csv2frame, ensure_success
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 base_url = 'https://iupred3.elte.hu/'
+cutoff = 0.5
 
 
-def submit_and_get_result(seq, mode='long'):
+def submit_and_get_result(seq, mode):
     with webdriver.Firefox() as driver:
         driver.get(base_url)
         # submit sequence
@@ -23,13 +27,25 @@ def submit_and_get_result(seq, mode='long'):
     return result
 
 
-def parse_result(result):
-    return csv2frame(result)
+def parse_result(result, mode):
+    df = csv2frame(result)[[2]]
+    df.columns = [f'iupred_{mode}']
+    return df >= cutoff
 
 
-def get_iupred(seq):
-    dfs = []
-    for mode in ('long', 'short'):
-        result = submit_and_get_result(seq)
-        dfs.append(parse_result(result))
-    return pd.concat(dfs)
+def get_iupred_mode(seq, mode):
+    logger.debug(f'submitting mode: {mode}')
+    result_raw = submit_and_get_result(seq, mode)
+    logger.debug('parsing results for mode: {mode}')
+    result = parse_result(result_raw, mode)
+    return result
+
+
+@ensure_success
+async def get_iupred_long(seq):
+    return get_iupred_mode(seq, 'long')
+
+
+@ensure_success
+async def get_iupred_short(seq):
+    return get_iupred_mode(seq, 'short')

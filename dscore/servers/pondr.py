@@ -1,12 +1,13 @@
 from selenium import webdriver
 
-from ..utils import csv2frame
+from ..utils import csv2frame, ensure_success
 
 
 base_url = 'http://www.pondr.com/'
+cutoff = 0.5
 
 
-def submit_and_get_result(seq, mode='long'):
+def submit_and_get_result(seq):
     with webdriver.Firefox() as driver:
         driver.get(base_url)
         base_xpath = '/html/body/form[2]/table/tbody'
@@ -32,10 +33,13 @@ def submit_and_get_result(seq, mode='long'):
 
 
 def parse_result(result):
-    return csv2frame(result, header=0)
+    df = csv2frame(result, skiprows=[0])[[2]]
+    df.columns = ['pondr']
+    return df >= cutoff
 
 
-def get_pondr(seq):
+@ensure_success
+async def get_pondr(seq):
     result = submit_and_get_result(seq)
     return parse_result(result)
 
