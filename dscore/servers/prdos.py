@@ -51,5 +51,5 @@ def parse_result(result, seq):
 @ensure_and_log
 async def get_prdos(seq):
     submitted_driver = submit(seq)
-    result = get_result(submitted_driver)
+    result = await get_result(submitted_driver)
     return parse_result(result, seq)
