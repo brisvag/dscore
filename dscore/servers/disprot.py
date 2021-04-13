@@ -1,7 +1,7 @@
 from selenium import webdriver
 import pandas as pd
 
-from ..utils import csv2frame, ensure_success
+from ..utils import csv2frame, ensure_and_log
 
 
 base_url = 'http://original.disprot.org/metapredictor.php'
@@ -50,7 +50,7 @@ def parse_results(results):
     return pd.concat(dfs, axis=1)
 
 
-@ensure_success
+@ensure_and_log
 async def get_disprot(seq):
     submitted_driver = submit(seq)
     result = get_results(submitted_driver)

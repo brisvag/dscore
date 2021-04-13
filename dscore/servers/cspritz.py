@@ -2,7 +2,7 @@ from selenium import webdriver
 import pandas as pd
 import numpy as np
 
-from ..utils import retry, JobNotDone, ensure_success
+from ..utils import retry, JobNotDone, ensure_and_log
 
 import logging
 logger = logging.getLogger(__name__)
@@ -53,11 +53,11 @@ async def get_cspritz_mode(seq, mode):
     return parse_result(result, mode)
 
 
-@ensure_success
+@ensure_and_log
 async def get_cspritz_long(seq):
     return await get_cspritz_mode(seq, 'long')
 
 
-@ensure_success
+@ensure_and_log
 async def get_cspritz_short(seq):
     return await get_cspritz_mode(seq, 'short')

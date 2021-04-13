@@ -4,7 +4,7 @@ import tempfile
 
 import jpredapi
 
-from ..utils import retry, csv2frame, JobNotDone, ensure_success
+from ..utils import retry, csv2frame, JobNotDone, ensure_and_log
 
 
 job_in_queue = re.compile(r'currently (\d+) jobs')
@@ -44,7 +44,7 @@ def parse_result(result):
     return None
 
 
-@ensure_success
+@ensure_and_log
 async def get_jpred(seq):
     job_id = submit(seq)
     result = get_result(job_id)

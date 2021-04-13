@@ -1,6 +1,6 @@
 from selenium import webdriver
 
-from ..utils import csv2frame, ensure_success
+from ..utils import csv2frame, ensure_and_log
 
 
 base_url = 'http://www.pondr.com/'
@@ -38,7 +38,7 @@ def parse_result(result):
     return df >= cutoff
 
 
-@ensure_success
+@ensure_and_log
 async def get_pondr(seq):
     result = submit_and_get_result(seq)
     return parse_result(result)

@@ -2,7 +2,7 @@ import re
 
 from selenium import webdriver
 
-from ..utils import ranges2frame
+from ..utils import ranges2frame, ensure_and_log
 
 
 base_url = 'https://mendel.imp.ac.at/METHODS/seg.server.html'
@@ -27,6 +27,7 @@ def parse_result(result, seq):
     return ranges2frame(ranges, seq, 'seg')
 
 
-def get_seg(seq):
+@ensure_and_log
+async def get_seg(seq):
     result = submit_and_get_result(seq)
-    return parse_result(result)
+    return parse_result(result, seq)

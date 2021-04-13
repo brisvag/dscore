@@ -5,7 +5,7 @@ import pandas as pd
 from .servers import sequence_disorder
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig()
 logger = logging.getLogger(__name__)
 
 

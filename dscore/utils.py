@@ -54,15 +54,22 @@ class JobNotDone(RuntimeError):
     pass
 
 
-def ensure_success(coroutine):
+def ensure_and_log(coroutine):
+    """
+    logs the execution of a coroutine and ensures that it fails gracefully
+    """
     logger = logging.getLogger(coroutine.__module__)
 
     async def wrapper(*args, **kwargs):
         try:
-            return await coroutine(*args, **kwargs)
+            logger.info(f'"{coroutine.__name__}" started')
+            result = await coroutine(*args, **kwargs)
         except Exception:
-            logger.exception(f'{coroutine} failed, skipping from results')
-            return None
+            logger.exception(f'"{coroutine.__name__}" failed, skipping from results')
+            result = None
+
+        logger.info(f'"{coroutine.__name__}" finished')
+        return result
 
     return wrapper
 
@@ -79,12 +86,11 @@ def csv2frame(string, **kwargs):
 
 def ranges2frame(ranges, seq, col_name):
     df = pd.DataFrame(np.zeros(len(seq)), dtype=bool, columns=[col_name])
-    for mode, regions in ranges.items():
-        for rg in regions:
-            # convert in python range objects
-            x, y = [int(n) for n in rg.split('-')]
-            as_range = range(x - 1, y)
-            df[mode].iloc[as_range] = True
+    for rg in ranges:
+        # convert in python range objects
+        x, y = [int(n) for n in rg.split('-')]
+        as_range = range(x - 1, y)
+        df.iloc[as_range] = True
     return df
 
 

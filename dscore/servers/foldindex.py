@@ -1,7 +1,7 @@
 import requests
 from xml.etree import ElementTree
 
-from ..utils import retry, ensure_success
+from ..utils import retry, ensure_and_log
 
 
 submit_base_url = 'https://fold.weizmann.ac.il/fldbin/findex?m=xml&sq='
@@ -17,6 +17,6 @@ def submit_and_get_result(seq):
     return result
 
 
-@ensure_success
+@ensure_and_log
 async def get_foldindex(seq):
     return await submit_and_get_result(seq)

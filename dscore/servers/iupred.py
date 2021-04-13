@@ -1,7 +1,7 @@
 from selenium import webdriver
 import pandas as pd
 
-from ..utils import csv2frame, ensure_success
+from ..utils import csv2frame, ensure_and_log
 
 import logging
 logger = logging.getLogger(__name__)
@@ -41,11 +41,11 @@ def get_iupred_mode(seq, mode):
     return result
 
 
-@ensure_success
+@ensure_and_log
 async def get_iupred_long(seq):
     return get_iupred_mode(seq, 'long')
 
 
-@ensure_success
+@ensure_and_log
 async def get_iupred_short(seq):
     return get_iupred_mode(seq, 'short')

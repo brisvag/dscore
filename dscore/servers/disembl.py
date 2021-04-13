@@ -1,6 +1,6 @@
 import requests
 
-from ..utils import parse_disembl_globplot, ensure_success
+from ..utils import parse_disembl_globplot, ensure_and_log
 
 import logging
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ def parse_result(text, seq):
     return parse_disembl_globplot(text, seq, modes, basename)
 
 
-@ensure_success
+@ensure_and_log
 async def get_disembl(seq):
     logger.info('submitting')
     result = submit_and_get_result(seq)

@@ -5,7 +5,7 @@ import pandas as pd
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 
-from ..utils import csv2frame, retry, JobNotDone, ensure_success
+from ..utils import csv2frame, retry, JobNotDone, ensure_and_log
 
 
 base_url = 'http://prdos.hgc.jp/cgi-bin/top.cgi'
@@ -48,7 +48,7 @@ def parse_result(result, seq):
     return df
 
 
-@ensure_success
+@ensure_and_log
 async def get_prdos(seq):
     submitted_driver = submit(seq)
     result = get_result(submitted_driver)

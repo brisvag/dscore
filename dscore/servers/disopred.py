@@ -1,6 +1,6 @@
 import requests
 
-from ..utils import csv2frame, retry, JobNotDone, ensure_success
+from ..utils import csv2frame, retry, JobNotDone, ensure_and_log
 
 import logging
 logger = logging.getLogger(__name__)
@@ -47,7 +47,7 @@ def parse_result(result):
     return as_bool
 
 
-@ensure_success
+@ensure_and_log
 async def get_disopred(seq):
     logger.debug('submitting')
     job_url = submit(seq)
