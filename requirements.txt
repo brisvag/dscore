@@ -1,3 +1,5 @@
+click
 jpredapi
+numpy
 pandas
 selenium
