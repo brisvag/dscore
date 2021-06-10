@@ -24,7 +24,7 @@ def parse_result(text, seq):
 
 @ensure_and_log
 async def get_globplot(seq):
-    logger.info('submitting')
+    logger.debug('submitting')
     result = submit_and_get_result(seq)
-    logger.info('parsing')
+    logger.debug('parsing')
     return parse_result(result, seq)

@@ -12,21 +12,23 @@ from .foldindex import get_foldindex
 
 from .jpred import get_jpred
 
-sequence_disorder = (
-    get_cspritz_long, get_cspritz_short,
-    get_disembl,
-    get_disopred,
-    get_disprot,
-    get_globplot,
-    get_iupred_long, get_iupred_short,
-    get_pondr,
-    get_prdos,
-    get_seg,
-)
+sequence_disorder = {
+    'cspritz_L': get_cspritz_long,
+    'cspritz_S': get_cspritz_short,
+    'disembl': get_disembl,
+    'disopred': get_disopred,
+    'disprot': get_disprot,
+    'globplot': get_globplot,
+    'iupred_L': get_iupred_long,
+    'iupred_S': get_iupred_short,
+    'pondr': get_pondr,
+    'prdos': get_prdos,
+    'seg': get_seg,
+}
 
-general_disorder = (
-    get_foldindex,
-)
+general_disorder = {
+    'foldindex': get_foldindex,
+}
 
 # to finish
 todo = (

@@ -3,3 +3,4 @@ jpredapi
 numpy
 pandas
 selenium
+tabulate

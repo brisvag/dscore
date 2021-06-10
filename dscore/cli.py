@@ -11,4 +11,6 @@ from .dscore import dscore as _dscore
 @click.option('-o', '--output-dir', type=click.Path(file_okay=False), default='.', show_default=True,
               help='put saved files in this directory')
 def cli(sequence, name, dscore, csv, output_dir):
+    if not dscore and not csv:
+        click.UsageError('you must save your result somewhere')
     _dscore(sequence, save_as_dscore=dscore, save_as_csv=csv, save_path=output_dir, base_name=name)

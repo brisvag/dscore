@@ -23,6 +23,8 @@ def retry(func):
         start_time = time.time()
         while True:
             elapsed = time.time() - start_time
+            if elapsed >= max_time:
+                break
             logger.debug(f'retrying: {elapsed=:.0f}, {max_time=:.0f}, {failed=}')
             try:
                 ret = func(*args, **kwargs)

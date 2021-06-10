@@ -1,32 +1,32 @@
 import pandas as pd
-import tabulate
+from tabulate import tabulate
 
 
-def format_result(result, seq):
-    # 1-numbered is convention
-    result.index += 1
-    result.index.name = 'resn'
+def pre_format_result(result, seq):
+    result = result.copy()
     # D and - are more readable than True and False
     result[result == True] = 'D'  # noqa
     result[result == False] = '-'  # noqa
     # add residue column
-    seq_column = pd.DataFrame({'residue': list(seq)}, index=range(1, len(seq) + 1))
+    seq_column = pd.DataFrame({'residue': list(seq)})
     merged = pd.concat([seq_column, result], axis=1)
+    # 1-numbered is convention
+    merged.index += 1
+    merged.index.name = 'resn'
     return merged
 
 
-def save_csv(result, path):
-    result.to_csv(path, sep=' ')
+def as_csv(result):
+    return result.to_csv(sep=' ')
 
 
-def save_dscore(result, path):
+def as_dscore(result):
     # header
-    header = []
+    header = [f'# {0}. {result.index.name}']
     for i, col_name in enumerate(result.columns):
-        header.append(f'# {i}. {col_name}')
+        header.append(f'# {i + 1}. {col_name}')
     header = '\n'.join(header)
     # tabulated data
     tabulated = tabulate(result, headers=range(len(result.columns) + 1))
     text = header + '\n' + tabulated
-    with open(path, 'w+') as f:
-        f.write(text)
+    return text
