@@ -2,11 +2,12 @@ import pandas as pd
 from tabulate import tabulate
 
 
+
 def pre_format_result(result, seq):
     result = result.copy()
-    # D and - are more readable than True and False
-    result[result == True] = 'D'  # noqa
-    result[result == False] = '-'  # noqa
+    # add dscore
+    dscore = result.mean(axis=1) >= 0.5
+    result['dscore'] = dscore
     # add residue column
     seq_column = pd.DataFrame({'residue': list(seq)})
     merged = pd.concat([seq_column, result], axis=1)
@@ -17,11 +18,16 @@ def pre_format_result(result, seq):
 
 
 def as_csv(result):
-    return result.to_csv(sep=' ')
+    result = result.replace(True, 1)
+    result = result.replace(False, 0)
+    return result.infer_objects().to_csv(sep=' ')
 
 
 def as_dscore(result):
     # header
+    # D and - are more readable than True and False
+    result = result.replace(True, 'D')
+    result = result.replace(False, '-')
     header = [f'# {0}. {result.index.name}']
     for i, col_name in enumerate(result.columns):
         header.append(f'# {i + 1}. {col_name}')

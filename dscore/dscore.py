@@ -1,10 +1,12 @@
+import threading
 import asyncio
 from pathlib import Path
+from time import sleep
 
 import pandas as pd
 
 from .servers import sequence_disorder
-from .utils import pre_format_result, as_csv, as_dscore, save_file
+from .utils import pre_format_result, as_csv, as_dscore, save_file, parse_fasta
 
 
 import logging
@@ -12,48 +14,99 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def prepare_tasks(seq, server_list):
-    tasks = []
+def prepare_threads(seq, server_list, df):
+    """
+    for each server in the server list, create a thread
+    with a target function that submits and receives from the server
+    and updates the main df with the result
+    """
+    # may not be necessary, but better safe than sorry
+    lock = threading.Lock()
+
+    def update_df(coroutine, seq):
+        """
+        run server coroutine and dump results in the main dataframe
+        """
+        result = asyncio.run(coroutine(seq))
+        if result is not None:
+            lock.acquire()
+            for colname, data in result.items():
+                df[colname] = data
+            lock.release()
+
+    threads = []
     for server in server_list:
         if server not in sequence_disorder:
             raise ValueError(f'cannot recognize server "{server}"')
-        coroutine = sequence_disorder.get(server)
-        tasks.append(asyncio.create_task(coroutine(seq)))
-    return tasks
+        func = sequence_disorder.get(server)
+        threads.append(threading.Thread(target=update_df, args=(func, seq), name=server))
+    return threads
 
 
-async def run_servers_coroutine(seq, server_list):
-    tasks = prepare_tasks(seq, server_list)
-    results = await asyncio.gather(*tasks)
-    # discard failed ones and merge
-    results = [r for r in results if r is not None]
-    merged = pd.concat(results, axis=1)
-    return merged
+def start_threads(seq, server_list, df):
+    """
+    start all the threads, using dataframe that will be updated live
+    as results come in. Also return the threads.
+    """
+    threads = prepare_threads(seq, server_list, df)
+    for thread in threads:
+        thread.start()
+    return threads
 
 
-def run_servers(seq, server_list):
-    return asyncio.run(run_servers(seq, server_list))
+def wait_threads(threads):
+    """
+    wait for threads to finish, but fail gracefully if interrupted
+    """
+    try:
+        while not_done := [thread.name for thread in threads if thread.is_alive()]:
+            logger.info(f'the following servers are not yet done: {not_done}')
+            sleep(5)
+    except KeyboardInterrupt:
+        return
+    return
 
 
-def run_all(seq):
-    return asyncio.run(run_servers(seq, sequence_disorder.keys()))
+def run_multiple_sequences(sequences, server_list):
+    all_threads = []
+    results = {}
+    for name, seq in sequences.items():
+        df = pd.DataFrame()
+        threads = start_threads(seq, server_list, df)
+        all_threads.append(threads)
+        results[name] = df
+    return results, threads
 
 
-def dscore(seq, save_as_dscore=False, save_as_csv=False, save_path='.', name=None, server_list=None):
+def dscore(seq, save_as_dscore=False, save_as_csv=False, save_dir='.', name=None, server_list=None):
+    save_path = Path(save_dir)
+    if save_path.is_file():
+        raise ValueError('target path must be a directory')
+
     if server_list is None:
         server_list = sequence_disorder.keys()
-    result = pre_format_result(run_servers(seq, server_list))
-    if name is None:
-        name = f'{seq[:15]}'
-    save_path = Path(save_path)
+    if Path(seq).exists():
+        with open(seq, 'r') as f:
+            seq = f.read()
+    sequences = parse_fasta(seq)
+
+    results, threads = run_multiple_sequences(sequences, server_list)
+
+    # wait until eveyrhting is done or expires
+    wait_threads(threads)
+    for name, df in results.items():
+        results[name] = pre_format_result(df, sequences[name])
+
+    save_path.mkdir(parents=True, exist_ok=True)
     to_save = {}
-    if save_as_dscore:
-        path_dscore = save_path / (name + '.dscore')
-        to_save[path_dscore] = as_dscore(result, path_dscore)
-    if save_as_csv:
-        path_csv = save_path / (name + '.csv')
-        to_save[path_csv] = as_csv(result, path_csv)
+    for name, df in results.items():
+        if save_as_dscore:
+            path_dscore = save_path / (name + '.dscore')
+            to_save[path_dscore] = as_dscore(df)
+        if save_as_csv:
+            path_csv = save_path / (name + '.csv')
+            to_save[path_csv] = as_csv(df)
 
     for path, text in to_save.items():
         save_file(text, path)
-    return result
+    return results

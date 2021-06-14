@@ -1,8 +1,10 @@
+from collections import defaultdict
 from io import StringIO
 import re
 
 import numpy as np
 import pandas as pd
+from slugify import slugify
 
 
 def csv2frame(string, **kwargs):
@@ -43,3 +45,23 @@ def parse_disembl_globplot(text, seq, modes, basename):
         df = ranges2frame(regions, seq, mode)
         dfs.append(df)
     return pd.concat(dfs, axis=1)
+
+
+def parse_fasta(fasta_text, name=None):
+    sequences = defaultdict(str)
+    current_seq = None
+    none_count = 0
+    for line in fasta_text.split('\n'):
+        line = line.strip()
+        if not line:
+            current_seq = None
+        elif line.startswith(">"):
+            current_seq = slugify(line[1:].strip(), separator='_', lowercase=False)
+        else:
+            if current_seq is None:
+                current_seq = f'none_{none_count}'
+                none_count += 1
+            sequences[current_seq] += line.translate(str.maketrans('', '', ' \t')).upper()
+    if name and len(sequences) == 1:
+        sequences = {name: list(sequences.values())[0]}
+    return sequences
