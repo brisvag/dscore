@@ -17,14 +17,16 @@ def csv2frame(string, **kwargs):
     return pd.read_csv(stream, **defaults)
 
 
-def ranges2frame(ranges, seq, col_name):
-    df = pd.DataFrame(np.zeros(len(seq)), dtype=bool, columns=[col_name])
-    for rg in ranges:
-        # convert in python range objects
-        x, y = [int(n) for n in rg.split('-')]
-        as_range = range(x - 1, y)
-        df.iloc[as_range] = True
-    return df
+def frame_from_ranges(seq, ranges):
+    empty = np.zeros((len(seq), len(ranges)), dtype=bool)
+    result = pd.DataFrame(empty, columns=ranges.keys())
+    for mode, regions in ranges.items():
+        for region in regions:
+            # convert in python range objects
+            x, y = [int(n) for n in region.split('-')]
+            as_range = range(x - 1, y)
+            result[mode].iloc[as_range] = True
+    return result
 
 
 def parse_disembl_globplot(text, seq, modes, basename):
@@ -37,14 +39,15 @@ def parse_disembl_globplot(text, seq, modes, basename):
     # get ranges of disordered regions
     for mode in modes:
         # find ranges in text
-        regions = re.search(f'none_{mode}.*\n(.*)<br>', text).group(1).split(', ')
+        regions = re.search(f'none_{mode}.*\n(.*)\n?<br>', text).group(1)
+        if regions == 'none':
+            regions = []
+        else:
+            regions = regions.split(', ')
         ranges[f'{basename}_{mode}'] = regions
 
-    dfs = []
-    for mode, regions in ranges.items():
-        df = ranges2frame(regions, seq, mode)
-        dfs.append(df)
-    return pd.concat(dfs, axis=1)
+    result = frame_from_ranges(seq, ranges)
+    return result
 
 
 def parse_fasta(fasta_text, name=None):

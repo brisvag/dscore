@@ -58,9 +58,13 @@ def wait_threads(threads):
     """
     wait for threads to finish, but fail gracefully if interrupted
     """
+    was_done = []
     try:
         while not_done := [thread.name for thread in threads if thread.is_alive()]:
-            logger.info(f'the following servers are not yet done: {not_done}')
+            done = [thread.name for thread in threads if not thread.is_alive()]
+            if was_done != done:
+                logger.info(f'the following servers are not yet done: {not_done}')
+            was_done = done
             sleep(5)
     except KeyboardInterrupt:
         return

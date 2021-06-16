@@ -34,3 +34,8 @@ general_disorder = {
 todo = (
     get_jpred,
 )
+
+
+by_speed = {'fast': ['disembl', 'disprot', 'globplot', 'iupred_S', 'iupred_L', 'pondr', 'seg']}
+by_speed['normal'] = by_speed['fast'] + ['prdos', 'disopred']
+by_speed['slow'] = by_speed['normal'] + ['cspritz_S', 'cspritz_L']
