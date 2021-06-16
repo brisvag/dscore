@@ -68,14 +68,13 @@ def wait_threads(threads):
 
 
 def run_multiple_sequences(sequences, server_list):
-    all_threads = []
     results = {}
     for name, seq in sequences.items():
         df = pd.DataFrame()
         threads = start_threads(seq, server_list, df)
-        all_threads.append(threads)
+        wait_threads(threads)
         results[name] = df
-    return results, threads
+    return results
 
 
 def dscore(seq, save_as_dscore=False, save_as_csv=False, save_dir='.', name=None, server_list=None):
@@ -90,10 +89,8 @@ def dscore(seq, save_as_dscore=False, save_as_csv=False, save_dir='.', name=None
             seq = f.read()
     sequences = parse_fasta(seq)
 
-    results, threads = run_multiple_sequences(sequences, server_list)
+    results = run_multiple_sequences(sequences, server_list)
 
-    # wait until eveyrhting is done or expires
-    wait_threads(threads)
     for name, df in results.items():
         results[name] = pre_format_result(df, sequences[name])
 

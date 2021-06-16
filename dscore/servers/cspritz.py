@@ -25,7 +25,7 @@ def submit(seq, mode='long'):
     return driver
 
 
-@retry
+@retry(max_time=3600)   # 30 minutes! This is very slow...
 def get_result(driver):
     if driver.find_element_by_xpath('/html/body/div[4]/p/span').text != 'finished':
         raise JobNotDone
