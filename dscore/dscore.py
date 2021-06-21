@@ -6,7 +6,7 @@ from time import sleep
 import pandas as pd
 
 from .servers import sequence_disorder
-from .utils import pre_format_result, as_csv, as_dscore, save_file, parse_fasta
+from .utils import pre_format_result, as_csv, as_dscore, save_file, parse_fasta, save_plot
 
 
 import logging
@@ -81,7 +81,7 @@ def run_multiple_sequences(sequences, server_list):
     return results
 
 
-def dscore(seq, save_as_dscore=False, save_as_csv=False, save_dir='.', name=None, server_list=None):
+def dscore(seq, save_as_dscore=False, save_as_csv=False, save_as_plot=False, save_dir='.', name=None, server_list=None):
     save_path = Path(save_dir)
     if save_path.is_file():
         raise ValueError('target path must be a directory')
@@ -107,6 +107,9 @@ def dscore(seq, save_as_dscore=False, save_as_csv=False, save_dir='.', name=None
         if save_as_csv:
             path_csv = save_path / (name + '.csv')
             to_save[path_csv] = as_csv(df)
+        if save_as_plot:
+            path_plot = save_path / (name + '_dscore.png')
+            save_plot(df, path_plot)
 
     for path, text in to_save.items():
         save_file(text, path)
