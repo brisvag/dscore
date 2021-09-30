@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 @click.option('-v', '--verbose', count=True, help='set the log level; can be passed up to 3 times.')
 def cli(sequence, dscore, csv, plot, speed, run_only, save_dir, name, verbose):
     """
-    SEQUENCE: sequence string or fasta file
+    SEQUENCE: sequence string or fasta file for submission
     """
     logging.basicConfig(level=30 - verbose * 10)
     logger.debug(f'{sequence=}, {dscore=}, {csv=}, {plot=}, {speed=}, '

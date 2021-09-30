@@ -1,14 +1,19 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def save_dscore_plot(df, image_path, name):
+def dscore_plot(df, name, savepath=None):
+    fig, ax = plt.subplots(figsize=(10, 6))
     df.plot(y='dscore', legend=False, ylim=(0, 1),
-            xlabel='resid', ylabel='dscore', title=name)
-    plt.savefig(image_path, bbox_inches='tight')
+            xlabel='resid', ylabel='dscore', title=f'dscore - {name}')
+    if savepath is not None:
+        plt.savefig(savepath / (name + '_dscore.png'), bbox_inches='tight')
+    else:
+        plt.show()
 
 
-def save_servers_plot(df, image_path, name):
+def servers_plot(df, name, savepath=None):
     server_data = df.iloc[:, 2:-3]
     ylabels = server_data.columns
     data = server_data.to_numpy(int).T
@@ -33,4 +38,28 @@ def save_servers_plot(df, image_path, name):
     # colorbar legend
     formatter = plt.FixedFormatter(['disordered', 'ordered'])
     plt.colorbar(ticks=[0.5, 1.5], format=formatter, drawedges=True, values=[0, 2])
-    plt.savefig(image_path, bbox_inches='tight')
+
+    if savepath is not None:
+        plt.savefig(savepath / (name + '_servers.png'), bbox_inches='tight')
+    else:
+        plt.show()
+
+
+def consensus_plot(df, name, savepath=None):
+    data = df.iloc[:, 2:-3]
+    diff = data.to_numpy() == df[['dscore_cutoff']].to_numpy()
+    diff = pd.DataFrame(diff, columns=data.columns)
+    consensus = diff.sum(axis=0) / len(diff)
+
+    # plot
+    fig, ax = plt.subplots(figsize=(10, 6))
+    consensus.plot(kind='bar', legend=False, ylim=(0, 1),
+                   xlabel='server', ylabel='consensus',
+                   title=f'consensus - {name}')
+    # rotate labels for legibility
+    plt.xticks(rotation=60, ha='right')
+
+    if savepath is not None:
+        plt.savefig(savepath / (name + '_consensus.png'), bbox_inches='tight')
+    else:
+        plt.show()

@@ -6,7 +6,7 @@ from time import sleep
 import pandas as pd
 
 from .servers import sequence_disorder
-from .utils import pre_format_result, as_csv, as_dscore, save_file, parse_fasta, save_dscore_plot, save_servers_plot
+from .utils import pre_format_result, as_csv, as_dscore, save_file, parse_fasta, dscore_plot, servers_plot, consensus_plot
 
 
 import logging
@@ -107,13 +107,12 @@ def dscore(seq, save_as_dscore=False, save_as_csv=False, save_as_plot=False, sav
             path_csv = save_path / (name + '.csv')
             save_file(path_csv, as_csv(df))
         if save_as_plot:
-            path_plot = save_path / (name + '_dscore.png')
-            save_dscore_plot(df, path_plot, name)
+            dscore_plot(df, name, save_path)
 
     for path, text in to_save.items():
         save_file(text, path)
 
-    # make global disorder plot
-    path_servers_plot = save_path / (name + '_servers.png')
-    save_servers_plot(df, path_servers_plot, name)
+    # make global plots
+    servers_plot(df, name, save_path)
+    consensus_plot(df, name, save_path)
     return results
