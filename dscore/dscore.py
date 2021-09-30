@@ -6,7 +6,7 @@ from time import sleep
 import pandas as pd
 
 from .servers import sequence_disorder
-from .utils import pre_format_result, as_csv, as_dscore, save_file, parse_fasta, dscore_plot, servers_plot, consensus_plot
+from .utils import pre_format_result, parse_fasta, write_csv, write_dscore, dscore_plot, servers_plot, consensus_plot
 
 
 import logging
@@ -80,7 +80,7 @@ def run_multiple_sequences(sequences, server_list):
     return results
 
 
-def dscore(seq, save_as_dscore=False, save_as_csv=False, save_as_plot=False, save_dir='.', name=None, server_list=None):
+def dscore(seq, save_as_csv=False, save_dir='.', name=None, server_list=None):
     save_path = Path(save_dir)
     if save_path.is_file():
         raise ValueError('target path must be a directory')
@@ -98,21 +98,12 @@ def dscore(seq, save_as_dscore=False, save_as_csv=False, save_as_plot=False, sav
         results[name] = pre_format_result(df, sequences[name])
 
     save_path.mkdir(parents=True, exist_ok=True)
-    to_save = {}
     for name, df in results.items():
-        if save_as_dscore:
-            path_dscore = save_path / (name + '.dscore')
-            save_file(path_dscore, as_dscore(df))
         if save_as_csv:
-            path_csv = save_path / (name + '.csv')
-            save_file(path_csv, as_csv(df))
-        if save_as_plot:
-            dscore_plot(df, name, save_path)
-
-    for path, text in to_save.items():
-        save_file(text, path)
-
-    # make global plots
-    servers_plot(df, name, save_path)
-    consensus_plot(df, name, save_path)
+            write_csv(df, name, save_path)
+        else:
+            write_dscore(df, name, save_path)
+        dscore_plot(df, name, save_path)
+        servers_plot(df, name, save_path)
+        consensus_plot(df, name, save_path)
     return results
