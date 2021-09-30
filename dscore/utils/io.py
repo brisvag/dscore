@@ -30,4 +30,7 @@ def read_dscore(dscore_or_csv):
             df = pd.read_csv(path, sep=' ')
             df.iloc[:, 2:] = df.iloc[:, 2:].replace(0, False)
             df.iloc[:, 2:] = df.iloc[:, 2:].replace(1, True)
+
+    # make sure to use float and not object
+    df['dscore'] = df['dscore'].astype(float)
     return df
