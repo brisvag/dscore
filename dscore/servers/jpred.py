@@ -19,7 +19,7 @@ def submit(seq):
     return job_id
 
 
-@retry
+@retry()
 def get_result(job_id):
     with tempfile.TemporaryDirectory() as temp_dir:
         res = jpredapi.status(job_id, results_dir_path=temp_dir, extract=True, silent=True)

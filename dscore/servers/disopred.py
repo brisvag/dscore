@@ -22,7 +22,7 @@ def submit(seq):
     return job_url
 
 
-@retry
+@retry()
 def get_result_location(job_url):
     r = requests.get(job_url)
     r.raise_for_status()
@@ -33,7 +33,7 @@ def get_result_location(job_url):
     return tasks['diso_combine']
 
 
-@retry
+@retry()
 def get_result(result_url):
     res = requests.get(result_base_url + result_url)
     res.raise_for_status()

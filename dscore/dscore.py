@@ -10,7 +10,6 @@ from .utils import pre_format_result, as_csv, as_dscore, save_file, parse_fasta,
 
 
 import logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

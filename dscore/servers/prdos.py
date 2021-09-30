@@ -22,7 +22,7 @@ def submit(seq):
     return driver
 
 
-@retry
+@retry()
 def get_result(driver):
     try:
         table = driver.find_element_by_xpath('/html/body/div[3]/form/div[2]/table/tbody')
