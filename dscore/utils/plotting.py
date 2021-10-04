@@ -47,9 +47,10 @@ def servers_plot(df, name, savepath=None):
 
 def consensus_plot(df, name, savepath=None):
     data = df.iloc[:, 2:-3]
-    diff = data.to_numpy() == df[['dscore_cutoff']].to_numpy()
+    # absolute deviation from consensus
+    diff = np.abs(data.to_numpy(float) - df[['dscore_cutoff']].to_numpy())
     diff = pd.DataFrame(diff, columns=data.columns)
-    consensus = diff.sum(axis=0) / len(diff)
+    consensus = 1 - diff.mean()
 
     # plot
     fig, ax = plt.subplots(figsize=(10, 6))

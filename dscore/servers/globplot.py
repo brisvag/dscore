@@ -17,7 +17,7 @@ def submit_and_get_result(seq):
 
 
 def parse_result(text, seq):
-    modes = ['Disorder', 'GlobDoms']
+    modes = ['Disorder', ]  # 'GlobDoms' removed cause it's about globular domains
     basename = 'globplot'
     return parse_disembl_globplot(text, seq, modes, basename)
 
