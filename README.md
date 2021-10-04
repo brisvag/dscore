@@ -4,7 +4,7 @@
 
 # Installation
 
-`dscore` is available on PyPi and easily installable with `pip`:
+`dscore` is available on PyPi and easily [installable with `pip`](https://linuxize.com/post/how-to-install-pip-on-ubuntu-18.04/):
 
 ```
 pip install dscore
