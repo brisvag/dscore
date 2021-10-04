@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 def dscore_plot(df, name, savepath=None):
     fig, ax = plt.subplots(figsize=(10, 6))
     df.plot(y='dscore', legend=False, ylim=(0, 1),
-            xlabel='resid', ylabel='dscore', title=f'dscore - {name}')
+            xlabel='residue number', ylabel='dscore (disorder)', title=f'dscore - {name}')
     if savepath is not None:
         plt.savefig(savepath / (name + '_dscore.png'), bbox_inches='tight')
     else:
