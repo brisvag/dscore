@@ -1,14 +1,15 @@
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 import pandas as pd
 
-from ..utils import csv2frame, ensure_and_log
+from ..utils import retry, JobNotDone, csv2frame, ensure_and_log
 
 
 base_url = 'http://original.disprot.org/metapredictor.php'
 cutoff = 0.5
 
 
-def submit(seq, mode='long'):
+def submit(seq):
     driver = webdriver.Firefox()
     driver.get(base_url)
     # tick all the boxes
@@ -24,12 +25,16 @@ def submit(seq, mode='long'):
     return driver
 
 
+@retry()
 def get_results(driver):
     names = ('VSL2', 'VSL3', 'VLXT', 'PONDR-FIT')
     results = {}
     urls = []
     for name in names:  # different from earlier, for some reason...
-        element = driver.find_element_by_xpath(f'/html/body/center[1]/a[contains(text(), "{name}")]')
+        try:
+            element = driver.find_element_by_xpath(f'/html/body/center[1]/a[contains(text(), "{name}")]')
+        except NoSuchElementException:
+            raise JobNotDone
         result_url = element.get_property('href')
         # save all of them before moving away
         urls.append(result_url)
@@ -53,5 +58,5 @@ def parse_results(results):
 @ensure_and_log
 async def get_disprot(seq):
     submitted_driver = submit(seq)
-    result = get_results(submitted_driver)
+    result = await get_results(submitted_driver)
     return parse_results(result)
