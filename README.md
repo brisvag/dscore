@@ -33,3 +33,7 @@ dscore my_proteins.fasta -o output_dir -s fast
 ```
 
 You will find the output files inside `output_dir`, including raw data in dscore format and several useful plots.
+
+# References
+
+This tool implements a simple automated version of the D-score calculation and analysis performed in the paper [Modular organization of rabies virus phosphoprotein](https://doi.org/10.1016/j.jmb.2009.03.061) by F. Gerard et Al.
