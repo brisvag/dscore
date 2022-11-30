@@ -1,7 +1,7 @@
+# D-score
+
 [![DOI](https://zenodo.org/badge/355984069.svg)](https://zenodo.org/badge/latestdoi/355984069)
 [![PyPI version](https://badge.fury.io/py/dscore.svg)](https://badge.fury.io/py/dscore)
-
-# D-score
 
 `dscore` is a meta-server tool for the prediction of disordered regions in protein sequences. It works by querying several webservers and gathering the results in an easy-to-use format. All the work is automated using simple web requests where possible, falling back to webscraping with `selenium` for servers without a public API.
 
