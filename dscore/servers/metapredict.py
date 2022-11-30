@@ -1,12 +1,12 @@
+import os
 from hashlib import blake2b
 from pathlib import Path
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 import pandas as pd
-import numpy as np
 
-from ..utils import retry, JobNotDone, ensure_and_log
+from ..utils import ensure_and_log
 
 import logging
 logger = logging.getLogger(__name__)
@@ -36,7 +36,9 @@ def submit(seq):
 
 
 def parse_result(save_dir):
-    raw_data = pd.read_csv(Path(tmp_dir) / save_dir / 'disorder_scores.csv', sep=', ', engine='python')
+    file = Path(tmp_dir) / save_dir / 'disorder_scores.csv'
+    raw_data = pd.read_csv(file, sep=', ', engine='python')
+    os.remove(file)
     dis_array = raw_data['Disorder'] >= 0.5
     df = pd.DataFrame({'metapredict': dis_array})
     return df

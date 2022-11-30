@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 @click.command(name='dscore')
 @click.argument('sequence')
 @click.option('-c', '--csv', is_flag=True, help='save result as simple csv instead of dscore custom format')
-@click.option('-s', '--speed', type=click.Choice(list(by_speed.keys())), default='normal', show_default=True,
+@click.option('-s', '--speed', type=click.Choice(list(by_speed.keys())), default='fast', show_default=True,
               help='restrict servers by speed. Fast: 30s/sequence. Normal: include disopred and prdos, 5min/sequence. '
                    'Slow: include jpred, up to 30min/sequence.')
 @click.option('-r', '--run-only', type=click.Choice(list(sequence_disorder.keys())), multiple=True,
@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
               help='put saved files in this directory')
 @click.option('-n', '--name', help='filename to use if single sequence with no name')
 @click.option('-v', '--verbose', count=True, help='set the log level; can be passed up to 3 times.')
-def cli(sequence, csv, speed, run_only, save_dir, name, verbose):
+@click.option('--complexity', is_flag=True, help='also calculate sequence complexity: cscore')
+def cli(sequence, csv, speed, run_only, save_dir, name, verbose, complexity):
     """
     Calculate disorder and complexity scores for one or more fasta sequences.
 
@@ -34,4 +35,5 @@ def cli(sequence, csv, speed, run_only, save_dir, name, verbose):
     else:
         servers = by_speed[speed]
     dscore(sequence, server_list=servers, save_as_csv=csv, save_dir=save_dir, name=name)
-    cscore(sequence, save_as_csv=csv, save_dir=save_dir, name=name)
+    if complexity:
+        cscore(sequence, save_as_csv=csv, save_dir=save_dir, name=name)
