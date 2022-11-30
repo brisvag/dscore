@@ -2,6 +2,19 @@
 
 `dscore` is a meta-server tool for the prediction of disordered regions in protein sequences. It works by querying several webservers and gathering the results in an easy-to-use format. All the work is automated using simple web requests where possible, falling back to webscraping with `selenium` for servers without a public API.
 
+The servers currently used are the following (follow the links for more information and references to papers):
+- [Disembl](http://dis.embl.de/)
+- [disopred](http://bioinf.cs.ucl.ac.uk/psipred/)
+- [disprot](http://original.disprot.org/metapredictor.php)
+- [espritz](http://old.protein.bio.unipd.it/espritz/)
+- [globplot](http://globplot.embl.de/)
+- [iupred](https://iupred3.elte.hu/)
+- [jpred](https://www.compbio.dundee.ac.uk/jpred/)
+- [metapredict](https://metapredict.net)
+- [pondr](htpps://www.pondr.com)
+- [prdos](prdos.hgc.jp/cgi-bin/top.cgi)
+- [seg](https://mendel.imp.ac.at/METHODS/seg.server.html)
+
 # Installation
 
 `dscore` is available on PyPi and easily [installable with `pip`](https://linuxize.com/post/how-to-install-pip-on-ubuntu-18.04/):
