@@ -1,11 +1,11 @@
 import re
 from pathlib import Path
 import tempfile
+import pandas as pd
 
 import jpredapi
 
-from ..utils import retry, csv2frame, JobNotDone, ensure_and_log
-
+from ..utils import retry, JobNotDone, ensure_and_log
 
 job_in_queue = re.compile(r'currently (\d+) jobs')
 job_incomplete = re.compile(r'(\d+%) complete')
@@ -13,7 +13,9 @@ job_done = re.compile('Results available')
 
 
 def submit(seq):
-    request_job = jpredapi.submit(mode='single', user_format='raw', seq=seq, silent=True)
+    # remove comments from sequence, not accepted
+    clean_seq = ''.join([line for line in seq.split('\n') if not line.startswith('>')])
+    request_job = jpredapi.submit(mode='single', user_format='raw', seq=clean_seq, silent=True)
     request_job.raise_for_status()
     job_id = re.search('jp_.*', request_job.headers['Location']).group()
     return job_id
@@ -30,7 +32,7 @@ def get_result(job_id):
         elif match := job_incomplete.search(res.text):
             raise JobNotDone(f'job {job_id} is not complete yet ({match.group(1)})')
         elif job_done.search(res.text):
-            result_file = Path(temp_dir) / job_id / f'{job_id}.concise.fasta'   # TODO which file? how to parse?
+            result_file = Path(temp_dir) / job_id / f'{job_id}.concise.fasta'
             with open(result_file, 'r') as f:
                 result = f.read()
         else:
@@ -39,13 +41,15 @@ def get_result(job_id):
 
 
 def parse_result(result):
-    # TODO: anything useful here?
-    #data = csv2frame(result)
-    return None
+    all_results = dict([res.split() for res in result.split('>') if res])
+    # anything non-structured (marked by a `-`) is disordered
+    modes = ('jnetpred', 'JNETSOL25', 'JNETSOL5', 'JNETSOL0', 'JNETHMM', 'JNETPSSM')
+    df = pd.DataFrame({f'jpred_{mode}': [data == '-' for data in all_results[mode]] for mode in modes})
+    return df
 
 
 @ensure_and_log
 async def get_jpred(seq):
     job_id = submit(seq)
-    result = get_result(job_id)
-    # return parse_result(result)
+    result = await get_result(job_id)
+    return parse_result(result)
