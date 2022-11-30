@@ -47,10 +47,10 @@ def write_csv(df, name, savepath, score_type='d'):
     save_file(csv, path)
 
 
-def read_dscore(dscore_or_csv):
+def read_dscore(dscore_or_csv, score_type='d'):
     path = Path(dscore_or_csv)
     with open(dscore_or_csv, 'r') as f:
-        if path.suffix == '.dscore':
+        if path.suffix == f'.{score_type}score':
             columns = []
             while True:
                 line = f.readline()
@@ -60,12 +60,15 @@ def read_dscore(dscore_or_csv):
                     break
             df = pd.read_csv(f, sep='\s+', names=columns)
             df.iloc[:, 2:] = df.iloc[:, 2:].replace('-', False)
-            df.iloc[:, 2:] = df.iloc[:, 2:].replace('D', True)
-        else:
+            df.iloc[:, 2:] = df.iloc[:, 2:].replace(score_type.upper(), True)
+        elif path.suffixes == [f'.{score_type}score', '.csv']:
             df = pd.read_csv(path, sep=' ')
             df.iloc[:, 2:] = df.iloc[:, 2:].replace(0, False)
             df.iloc[:, 2:] = df.iloc[:, 2:].replace(1, True)
+        else:
+            raise ValueError('file is the wrong type or corrupt')
 
     # make sure to use float and not object
-    df['dscore'] = df['dscore'].astype(float)
+    df[f'{score_type}score'] = df[f'{score_type}score'].astype(float)
+    df = df.set_index('resn')
     return df
