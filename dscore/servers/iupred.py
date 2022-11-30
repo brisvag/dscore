@@ -1,5 +1,5 @@
 from selenium import webdriver
-import pandas as pd
+from selenium.webdriver.common.by import By
 
 from ..utils import csv2frame, ensure_and_log
 
@@ -15,15 +15,15 @@ def submit_and_get_result(seq, mode):
     with webdriver.Firefox() as driver:
         driver.get(base_url)
         # submit sequence
-        driver.find_element_by_id('inp_seq').send_keys(seq)
-        driver.find_element_by_id(f'context_selector_{mode}').click()
-        driver.find_element_by_class_name('btn').click()
+        driver.find_element(By.ID, 'inp_seq').send_keys(seq)
+        driver.find_element(By.ID, f'context_selector_{mode}').click()
+        driver.find_element(By.CLASS_NAME, 'btn').click()
         # get raw text result link
-        menu = driver.find_element_by_class_name('dropdown-menu')
-        result_url = menu.find_elements_by_tag_name('a')[0].get_property('href')
+        menu = driver.find_element(By.CLASS_NAME, 'dropdown-menu')
+        result_url = menu.find_elements(By.TAG_NAME, 'a')[0].get_property('href')
         # open results
         driver.get(result_url)
-        result = driver.find_element_by_xpath('//html/body/pre').text
+        result = driver.find_element(By.XPATH, '//html/body/pre').text
     return result
 
 

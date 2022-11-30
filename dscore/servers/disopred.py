@@ -6,8 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-submit_base_url = 'http://bioinf.cs.ucl.ac.uk/psipred/api/submission.json'
-result_base_url = 'http://bioinf.cs.ucl.ac.uk/psipred_new/api'
+base_url = 'http://bioinf.cs.ucl.ac.uk/psipred/api'
 
 
 def submit(seq):
@@ -15,10 +14,10 @@ def submit(seq):
     data = {'job': 'disopred',
             'submission_name': 'dscore',
             'email': 'none@example.com'}
-    r = requests.post(submit_base_url, data=data, files=payload)
+    r = requests.post(base_url + '/submission.json', data=data, files=payload)
     r.raise_for_status()
     UUID = r.json()['UUID']
-    job_url = f'{result_base_url}/submission/{UUID}?format=json'
+    job_url = f'{base_url}/submission/{UUID}?format=json'
     return job_url
 
 
@@ -35,7 +34,7 @@ def get_result_location(job_url):
 
 @retry()
 def get_result(result_url):
-    res = requests.get(result_base_url + result_url)
+    res = requests.get(base_url + result_url)
     res.raise_for_status()
     return res.text
 

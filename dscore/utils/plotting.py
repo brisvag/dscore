@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 
 
 def dscore_plot(df, name, savepath=None):
@@ -14,7 +15,7 @@ def dscore_plot(df, name, savepath=None):
 
 
 def servers_plot(df, name, savepath=None):
-    server_data = df.iloc[:, 2:-3]
+    server_data = df.drop(columns=['residue', 'dscore', 'dscore_cutoff'], errors='ignore')
     ylabels = server_data.columns
     data = server_data.to_numpy(int).T
     n_servers = len(ylabels)
@@ -29,15 +30,15 @@ def servers_plot(df, name, savepath=None):
 
     # plot
     fig, ax = plt.subplots(figsize=(10, 0.2 * n_servers))
-    plt.imshow(data, interpolation='none', aspect='auto', cmap='bwr')
+    plt.imshow(data, interpolation='none', aspect='auto', cmap=ListedColormap(['blue', 'red']))
     # labels
     ax.set_title(f'Disordered regions - {name}')
     ax.set_xlabel('residue number')
     ax.set_yticks((np.arange(n_residues) + 0.3) * thick)
     ax.set_yticklabels(ylabels)
     # colorbar legend
-    formatter = plt.FixedFormatter(['disordered', 'ordered'])
-    plt.colorbar(ticks=[0.5, 1.5], format=formatter, drawedges=True, values=[0, 2])
+    formatter = plt.FixedFormatter(['ordered', 'disordered'])
+    plt.colorbar(ticks=[0.5, 1.5], format=formatter, aspect=2, fraction=0.05)
 
     if savepath is not None:
         plt.savefig(savepath / (name + '_servers.png'), bbox_inches='tight')
@@ -46,10 +47,10 @@ def servers_plot(df, name, savepath=None):
 
 
 def consensus_plot(df, name, savepath=None):
-    data = df.iloc[:, 2:-3]
+    server_data = df.drop(columns=['residue', 'dscore', 'dscore_cutoff'], errors='ignore')
     # absolute deviation from consensus
-    diff = np.abs(data.to_numpy(float) - df[['dscore_cutoff']].to_numpy())
-    diff = pd.DataFrame(diff, columns=data.columns)
+    diff = np.abs(server_data.to_numpy(float) - df[['dscore_cutoff']].to_numpy())
+    diff = pd.DataFrame(diff, columns=server_data.columns)
     consensus = 1 - diff.mean()
 
     # plot

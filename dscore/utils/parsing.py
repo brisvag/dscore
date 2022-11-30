@@ -7,12 +7,12 @@ import pandas as pd
 from slugify import slugify
 
 
-def csv2frame(string, **kwargs):
+def csv2frame(string, header=None, **kwargs):
     """
     read a csv string into a dataframe. Takes kwargs from pd.read_csv().
     """
     stream = StringIO(string)
-    defaults = dict(delim_whitespace=True, header=None, comment='#')
+    defaults = dict(delim_whitespace=True, header=header, comment='#')
     defaults.update(kwargs)
     return pd.read_csv(stream, **defaults)
 

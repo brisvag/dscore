@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 import pandas as pd
 import numpy as np
 
@@ -16,24 +17,24 @@ def submit(seq, mode='long'):
     seq = '> none\n' + seq
     driver = webdriver.Firefox()
     driver.get(base_url)
-    driver.find_element_by_id('sequence').send_keys(seq)
+    driver.find_element(By.ID, 'sequence').send_keys(seq)
     # submit. This is an ugly xpath... I hope it stays as is
     xpath = f'html/body/div[4]/form/fieldset[3]/table/tbody/tr[2]/td/select/option[contains(text(), "{mode}")]'
-    mode_selector = driver.find_element_by_xpath(xpath)
+    mode_selector = driver.find_element(By.XPATH, xpath)
     mode_selector.click()
-    driver.find_element_by_name('Submit Query').click()
+    driver.find_element(By.NAME, 'Submit Query').click()
     return driver
 
 
 @retry(max_time=3600)   # 30 minutes! This is very slow...
 def get_result(driver):
-    if driver.find_element_by_xpath('/html/body/div[4]/p/span').text != 'finished':
+    if driver.find_element(By.XPATH, '/html/body/div[4]/p/span').text != 'finished':
         raise JobNotDone
     # open text results
-    result_url = driver.find_element_by_xpath('/html/body/div[6]/center/b/table/tbody/tr[2]/td[2]/a').get_property('href')
+    result_url = driver.find_element(By.XPATH, '/html/body/div[6]/center/b/table/tbody/tr[2]/td[2]/a').get_property('href')
     # open results
     driver.get(result_url)
-    result = driver.find_element_by_xpath('/html/body/pre').text
+    result = driver.find_element(By.XPATH, '/html/body/pre').text
     driver.quit()
     return result
 
