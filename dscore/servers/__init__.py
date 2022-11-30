@@ -10,6 +10,7 @@ from .pondr import get_pondr
 from .prdos import get_prdos
 from .seg import get_seg
 from .espritz import get_espritz_xray, get_espritz_nmr, get_espritz_disprot
+from .metapredict import get_metapredict
 
 from .foldindex import get_foldindex
 
@@ -28,6 +29,7 @@ sequence_disorder = {
     'espritz_xray': get_espritz_xray,
     'espritz_nmr': get_espritz_nmr,
     'espritz_disprot': get_espritz_disprot,
+    'metapredict': get_metapredict,
 }
 
 general_disorder = {
@@ -40,6 +42,6 @@ todo = (
 )
 
 
-by_speed = {'fast': ['disembl', 'disprot', 'globplot', 'iupred_S', 'iupred_L', 'pondr', 'seg', 'espritz_xray', 'espritz_nmr', 'espritz_disprot']}
+by_speed = {'fast': ['disembl', 'disprot', 'globplot', 'iupred_S', 'iupred_L', 'pondr', 'seg', 'espritz_xray', 'espritz_nmr', 'espritz_disprot', 'metapredict']}
 by_speed['normal'] = by_speed['fast'] + ['prdos', 'disopred']
 # by_speed['slow'] = by_speed['normal'] + ['cspritz_S', 'cspritz_L']
