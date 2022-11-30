@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
+from matplotlib.cm import ScalarMappable
 
 
 def dscore_plot(df, name, savepath=None):
-    fig, ax = plt.subplots(figsize=(10, 6))
     df.plot(y='dscore', legend=False, ylim=(0, 1),
             xlabel='residue number', ylabel='dscore (disorder)', title=f'dscore - {name}')
     if savepath is not None:
@@ -25,12 +25,12 @@ def servers_plot(df, name, savepath=None):
     thick = 5
     data = data.repeat(thick, 0)
     data *= 2  # rescale to 0,2 from 0,1
-    data[thick - 1::thick] = 1  # add lines (1 is white in brw colormap)
+    data[thick - 1::thick] = 1  # add lines (1 is white in colormap)
     data = data[:-1]  # remove trailing line
 
     # plot
     fig, ax = plt.subplots(figsize=(10, 0.2 * n_servers))
-    plt.imshow(data, interpolation='none', aspect='auto', cmap=ListedColormap(['blue', 'red']))
+    plt.imshow(data, interpolation='none', aspect='auto', cmap=ListedColormap(['blue', 'white', 'red']))
     # labels
     ax.set_title(f'Disordered regions - {name}')
     ax.set_xlabel('residue number')
@@ -38,7 +38,8 @@ def servers_plot(df, name, savepath=None):
     ax.set_yticklabels(ylabels)
     # colorbar legend
     formatter = plt.FixedFormatter(['ordered', 'disordered'])
-    plt.colorbar(ticks=[0.5, 1.5], format=formatter, aspect=2, fraction=0.05)
+    real_cmap = ListedColormap(['blue', 'red'])
+    plt.colorbar(ScalarMappable(cmap=real_cmap), ticks=[0.25, 0.75], format=formatter, aspect=2, fraction=0.05)
 
     if savepath is not None:
         plt.savefig(savepath / (name + '_servers.png'), bbox_inches='tight')
