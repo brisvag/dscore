@@ -16,7 +16,8 @@ The servers currently used are the following (follow the links for more informat
 - [metapredict](https://metapredict.net)
 - [pondr](https://www.pondr.com)
 - [prdos](prdos.hgc.jp/cgi-bin/top.cgi)
-- [seg](https://mendel.imp.ac.at/METHODS/seg.server.html)
+
+- [seg](https://mendel.imp.ac.at/METHODS/seg.server.html) (for complexity prediction)
 
 # Installation
 
