@@ -5,8 +5,8 @@ from time import sleep
 
 import pandas as pd
 
-from .servers import sequence_disorder
-from .utils import pre_format_result, parse_fasta, write_csv, write_dscore, dscore_plot, servers_plot, consensus_plot
+from .servers import sequence_disorder, sequence_complexity
+from .utils import pre_format_result, parse_fasta, write_csv, write_score, dscore_plot, servers_plot, consensus_plot
 
 
 import logging
@@ -35,9 +35,11 @@ def prepare_threads(seq, server_list, df):
 
     threads = []
     for server in server_list:
-        if server not in sequence_disorder:
+        func = sequence_disorder.get(server, None)
+        if func is None:
+            func = sequence_complexity.get(server, None)
+        if func is None:
             raise ValueError(f'cannot recognize server "{server}"')
-        func = sequence_disorder.get(server)
         threads.append(threading.Thread(target=update_df, args=(func, seq), name=server))
     return threads
 
@@ -80,30 +82,54 @@ def run_multiple_sequences(sequences, server_list):
     return results
 
 
-def dscore(seq, save_as_csv=False, save_dir='.', name=None, server_list=None):
+def _parse_inputs(seq, save_dir):
     save_path = Path(save_dir)
     if save_path.is_file():
         raise ValueError('target path must be a directory')
 
-    if server_list is None:
-        server_list = sequence_disorder.keys()
     if Path(seq).exists():
         with open(seq, 'r') as f:
             seq = f.read()
     sequences = parse_fasta(seq)
+    return sequences, save_path
+
+
+def dscore(seq, save_as_csv=False, save_dir='.', name=None, server_list=None):
+    sequences, save_path = _parse_inputs(seq, save_dir)
+
+    if server_list is None:
+        server_list = sequence_disorder.keys()
 
     results = run_multiple_sequences(sequences, server_list)
 
     for name, df in results.items():
-        results[name] = pre_format_result(df, sequences[name])
+        results[name] = pre_format_result(df, sequences[name], score_type='d')
 
     save_path.mkdir(parents=True, exist_ok=True)
     for name, df in results.items():
         if save_as_csv:
-            write_csv(df, name, save_path)
+            write_csv(df, name, save_path, score_type='d')
         else:
-            write_dscore(df, name, save_path)
+            write_score(df, name, save_path, score_type='d')
         dscore_plot(df, name, save_path)
         servers_plot(df, name, save_path)
         consensus_plot(df, name, save_path)
+    return results
+
+
+def cscore(seq, save_as_csv=False, save_dir='.', name=None):
+    sequences, save_path = _parse_inputs(seq, save_dir)
+
+    server_list = sequence_complexity.keys()
+    results = run_multiple_sequences(sequences, server_list)
+
+    for name, df in results.items():
+        results[name] = pre_format_result(df, sequences[name], score_type='c')
+
+    save_path.mkdir(parents=True, exist_ok=True)
+    for name, df in results.items():
+        if save_as_csv:
+            write_csv(df, name, save_path, score_type='c')
+        else:
+            write_score(df, name, save_path, score_type='c')
     return results

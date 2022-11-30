@@ -2,7 +2,7 @@ import logging
 
 import click
 
-from .dscore import dscore as _dscore
+from .dscore import dscore, cscore
 from .servers import sequence_disorder, by_speed
 
 logger = logging.getLogger(__name__)
@@ -22,6 +22,8 @@ logger = logging.getLogger(__name__)
 @click.option('-v', '--verbose', count=True, help='set the log level; can be passed up to 3 times.')
 def cli(sequence, csv, speed, run_only, save_dir, name, verbose):
     """
+    Calculate disorder and complexity scores for one or more fasta sequences.
+
     SEQUENCE: sequence string or fasta file for submission
     """
     logging.basicConfig(level=30 - verbose * 10)
@@ -31,4 +33,5 @@ def cli(sequence, csv, speed, run_only, save_dir, name, verbose):
         servers = run_only
     else:
         servers = by_speed[speed]
-    _dscore(sequence, server_list=servers, save_as_csv=csv, save_dir=save_dir, name=name)
+    dscore(sequence, server_list=servers, save_as_csv=csv, save_dir=save_dir, name=name)
+    cscore(sequence, save_as_csv=csv, save_dir=save_dir, name=name)

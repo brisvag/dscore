@@ -11,10 +11,10 @@ def as_csv(df):
     return df.infer_objects().to_csv(sep=' ')
 
 
-def as_dscore(df):
+def as_score(df, score_type='d'):
     # header
     # D and - are more readable than True and False
-    df = df.replace(True, 'D')
+    df = df.replace(True, score_type.upper())
     df = df.replace(False, '-')
     header = [f'# {0}. {df.index.name}']
     for i, col_name in enumerate(df.columns):
@@ -35,15 +35,15 @@ def save_file(text, path):
         f.write(text)
 
 
-def write_dscore(df, name, savepath):
-    dscore = as_dscore(df)
-    path = savepath / (name + '.dscore')
+def write_score(df, name, savepath, score_type='d'):
+    dscore = as_score(df, score_type)
+    path = savepath / f'{name}.{score_type}score'
     save_file(dscore, path)
 
 
-def write_csv(df, name, savepath):
+def write_csv(df, name, savepath, score_type='d'):
     csv = as_csv(df)
-    path = savepath / (name + '.csv')
+    path = savepath / f'{name}.{score_type}score.csv'
     save_file(csv, path)
 
 
