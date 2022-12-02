@@ -41,7 +41,7 @@ def get_results(driver):
         # save all of them before moving away
         urls.append(result_url)
     for name, url in zip(names, urls):
-        driver.get(result_url)
+        driver.get(url)
         result = driver.find_element(By.XPATH, '/html/body/pre').text
         results[name] = result
     driver.quit()
