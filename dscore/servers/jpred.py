@@ -41,7 +41,8 @@ def get_result(job_id):
 
 
 def parse_result(result):
-    all_results = dict([res.split() for res in result.split('>') if res])
+    all_results = [res.split() for res in result.split('>') if res]
+    all_results = {k: v for k, v in all_results}
     # anything non-structured (marked by a `-`) is disordered
     modes = ('jnetpred', 'JNETSOL25', 'JNETSOL5', 'JNETSOL0', 'JNETHMM', 'JNETPSSM')
     df = pd.DataFrame({f'jpred_{mode}': [data == '-' for data in all_results[mode]] for mode in modes})
