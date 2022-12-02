@@ -6,7 +6,7 @@
 `dscore` is a meta-server tool for the prediction of disordered regions in protein sequences. It works by querying several webservers and gathering the results in an easy-to-use format. All the work is automated using simple web requests where possible, falling back to webscraping with `selenium` for servers without a public API.
 
 The servers currently used are the following (follow the links for more information and references to papers):
-- [Disembl](http://dis.embl.de/)
+- [disembl](http://dis.embl.de/)
 - [disopred](http://bioinf.cs.ucl.ac.uk/psipred/)
 - [disprot](http://original.disprot.org/metapredictor.php)
 - [espritz](http://old.protein.bio.unipd.it/espritz/)
@@ -18,6 +18,43 @@ The servers currently used are the following (follow the links for more informat
 - [prdos](prdos.hgc.jp/cgi-bin/top.cgi)
 
 - [seg](https://mendel.imp.ac.at/METHODS/seg.server.html) (for complexity prediction)
+
+# Features
+
+`dscore` then aggregates the data in a single table in a text file for further processing. It will also automatically generate a few plots for quickly visualising the data.
+
+---
+Server summary plot: disorder predictions from each algorithm available and consensus D-score.
+![](https://user-images.githubusercontent.com/23482191/205310158-06775023-a62a-4d1c-be4f-df4e7644ebca.png)
+
+---
+D-score plot: line plot of the raw averaged value used for D-score prediction.
+![](https://user-images.githubusercontent.com/23482191/205310161-29db13e6-5740-46d9-825a-ff15efac553c.png)
+
+---
+Consensus plot: an indication of how close to the consensus each server is, useful to find outliers. 
+![](https://user-images.githubusercontent.com/23482191/205310156-85074e12-7774-43f5-9f23-169825750794.png)
+
+---
+Text outputs: can easily be parsed for more advanced analysis.
+
+```
+# 0. resn
+# 1. residue
+# 2. disprot_VSL2
+# 3. disprot_VSL3
+# 4. disprot_VLXT
+# 5. disprot_PONDR-FIT
+# 6. dscore_raw
+# 7. dscore
+  0  1    2    3    4    5       6  7
+---  ---  ---  ---  ---  ---  ----  ---
+  1  M    D    D    D    D    0     D
+  2  T    D    D    D    D    0     D
+  3  K    D    D    D    D    0     D
+  4  K    D    D    D    D    0     D
+  [...]
+```
 
 # Installation
 
@@ -40,16 +77,10 @@ To run, `dscore` also requires the `Firefox` webdriver to be installed. Download
 `dscore` can be used either as a python library or from the command line. The latter has a simple interface:
 
 ```
-dscore --help
+dscore <sequence_or_fasta_file>
 ```
 
-For example, this command will run the `fast` subset of servers (about 30 seconds to get results):
-
-```
-dscore my_proteins.fasta -o output_dir -s fast
-```
-
-You will find the output files inside `output_dir`, including raw data in dscore format and several useful plots.
+Use the `--help` option for more information.
 
 # References
 
