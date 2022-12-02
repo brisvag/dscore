@@ -4,6 +4,7 @@ from pathlib import Path
 from time import sleep
 
 import pandas as pd
+from rich.progress import Progress
 
 from .servers import sequence_disorder, sequence_complexity
 from .utils import pre_format_result, parse_fasta, write_csv, write_score, dscore_plot, servers_plot, consensus_plot
@@ -55,29 +56,30 @@ def start_threads(seq, server_list, df):
     return threads
 
 
-def wait_threads(threads):
+def wait_threads(threads, progress):
     """
     wait for threads to finish, but fail gracefully if interrupted
     """
-    was_done = []
+    all_threads = [thread.name for thread in threads]
+    task = progress.add_task('querying servers', total=len(all_threads))
     try:
         while not_done := [thread.name for thread in threads if thread.is_alive()]:
-            done = [thread.name for thread in threads if not thread.is_alive()]
-            if was_done != done:
-                logger.info(f'the following servers are not yet done: {not_done}')
-            was_done = done
-            sleep(5)
+            progress.update(task, completed=len(all_threads) - len(not_done))
+            logger.info(f'the following servers are not yet done: {not_done}')
+            sleep(3)
+        else:
+            progress.update(task, completed=len(all_threads))
     except KeyboardInterrupt:
         return
     return
 
 
-def run_multiple_sequences(sequences, server_list):
+def run_multiple_sequences(sequences, server_list, progress):
     results = {}
     for name, seq in sequences.items():
         df = pd.DataFrame()
         threads = start_threads(seq, server_list, df)
-        wait_threads(threads)
+        wait_threads(threads, progress)
         results[name] = df
     return results
 
@@ -100,20 +102,21 @@ def dscore(seq, save_as_csv=False, save_dir='.', name=None, server_list=None):
     if server_list is None:
         server_list = sequence_disorder.keys()
 
-    results = run_multiple_sequences(sequences, server_list)
+    with Progress() as progress:
+        results = run_multiple_sequences(sequences, server_list, progress)
 
-    for name, df in results.items():
-        results[name] = pre_format_result(df, sequences[name], score_type='d')
+        for name, df in progress.track(results.items(), description='interpreting results'):
+            results[name] = pre_format_result(df, sequences[name], score_type='d')
 
-    save_path.mkdir(parents=True, exist_ok=True)
-    for name, df in results.items():
-        if save_as_csv:
-            write_csv(df, name, save_path, score_type='d')
-        else:
-            write_score(df, name, save_path, score_type='d')
-        dscore_plot(df, name, save_path)
-        servers_plot(df, name, save_path)
-        consensus_plot(df, name, save_path)
+        save_path.mkdir(parents=True, exist_ok=True)
+        for name, df in progress.track(results.items(), description='writing outputs and plotting'):
+            if save_as_csv:
+                write_csv(df, name, save_path, score_type='d')
+            else:
+                write_score(df, name, save_path, score_type='d')
+            dscore_plot(df, name, save_path)
+            servers_plot(df, name, save_path)
+            consensus_plot(df, name, save_path)
     return results
 
 
