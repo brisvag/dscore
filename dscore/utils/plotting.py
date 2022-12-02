@@ -6,8 +6,9 @@ from matplotlib.cm import ScalarMappable
 
 
 def dscore_plot(df, name, savepath=None):
-    df.plot(y='dscore', legend=False, ylim=(0, 1),
-            xlabel='residue number', ylabel='dscore (disorder)', title=f'dscore - {name}')
+    df.plot(y='dscore_raw', legend=False, ylim=(0, 1),
+            xlabel='residue number', ylabel='dscore (order)', title=f'dscore - {name}\ndisordered below 0.5')
+    plt.axhline(y=0.5, color='r', linestyle='--')
     if savepath is not None:
         plt.savefig(savepath / (name + '_dscore.png'), bbox_inches='tight')
     else:
@@ -15,7 +16,7 @@ def dscore_plot(df, name, savepath=None):
 
 
 def servers_plot(df, name, savepath=None):
-    server_data = df.drop(columns=['residue', 'dscore', 'dscore_cutoff'], errors='ignore')
+    server_data = df.drop(columns=['residue', 'dscore_raw'], errors='ignore')
     ylabels = server_data.columns
     data = server_data.to_numpy(int).T
     n_servers = len(ylabels)
@@ -37,8 +38,8 @@ def servers_plot(df, name, savepath=None):
     ax.set_yticks((np.arange(n_residues) + 0.3) * thick)
     ax.set_yticklabels(ylabels)
     # colorbar legend
-    formatter = plt.FixedFormatter(['ordered', 'disordered'])
-    real_cmap = ListedColormap(['blue', 'red'])
+    formatter = plt.FixedFormatter(['disordered', 'ordered'])
+    real_cmap = ListedColormap(['red', 'blue'])
     plt.colorbar(ScalarMappable(cmap=real_cmap), ticks=[0.25, 0.75], format=formatter, aspect=2, fraction=0.05)
 
     if savepath is not None:
@@ -48,9 +49,9 @@ def servers_plot(df, name, savepath=None):
 
 
 def consensus_plot(df, name, savepath=None):
-    server_data = df.drop(columns=['residue', 'dscore', 'dscore_cutoff'], errors='ignore')
+    server_data = df.drop(columns=['residue', 'dscore_raw', 'dscore'], errors='ignore')
     # absolute deviation from consensus
-    diff = np.abs(server_data.to_numpy(float) - df[['dscore_cutoff']].to_numpy())
+    diff = np.abs(server_data.to_numpy(float) - df[['dscore']].to_numpy())
     diff = pd.DataFrame(diff, columns=server_data.columns)
     consensus = 1 - diff.mean()
 
