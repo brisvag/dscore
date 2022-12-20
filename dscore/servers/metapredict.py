@@ -1,4 +1,3 @@
-import os
 from hashlib import blake2b
 from pathlib import Path
 from selenium import webdriver

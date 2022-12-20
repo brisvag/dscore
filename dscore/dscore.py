@@ -110,7 +110,11 @@ def dscore(seq, save_as_csv=False, save_dir='.', name=None, server_list=None, ig
         results = run_multiple_sequences(sequences, server_list, progress)
 
         for name, df in progress.track(results.items(), description='interpreting results'):
-            results[name] = pre_format_result(df, sequences[name], score_type='d')
+            res = pre_format_result(df, sequences[name], score_type='d')
+            # reorder columns so ignored and dscore at the end
+            at_end = [col for col in ignore if col in res.columns] + ['dscore']
+            columns = [col for col in res.columns if col not in at_end] + at_end
+            results[name] = res[columns]
 
         save_path.mkdir(parents=True, exist_ok=True)
         for name, df in progress.track(results.items(), description='writing outputs and plotting'):

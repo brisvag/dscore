@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 @click.option('-r', '--run-only', type=click.Choice(list(sequence_disorder.keys())), multiple=True,
               help='overrides SPEED. Run only the chosen server. Can be passed multiple times to run multiple servers.')
 @click.option('-i', '--ignore', type=click.Choice(list(sequence_disorder.keys())), multiple=True,
-              help='Ignore the chosen server when calculating dscore, but still include it in the servers plot. '
-                   'Can be passed multiple times to ignore multiple servers.')
+              help='Ignore the chosen column when calculating dscore, but still include it in the servers plot. '
+                   'Can be passed multiple times to ignore multiple columns.')
 @click.option('-o', '--save-dir', type=click.Path(file_okay=False), default='.', show_default=True,
               help='put saved files in this directory')
 @click.option('-n', '--name', help='filename to use if single sequence with no name')
@@ -27,6 +27,8 @@ def dscore_run(sequence, csv, speed, run_only, ignore, save_dir, name, verbose, 
     Calculate disorder and complexity scores for one or more fasta sequences.
 
     SEQUENCE: sequence string or fasta file for submission
+
+    Note: metapredict is automatically ignored for the calculation of dscore.
     """
     from .dscore import dscore, cscore
 
@@ -46,8 +48,8 @@ def dscore_run(sequence, csv, speed, run_only, ignore, save_dir, name, verbose, 
 @click.argument('dscore', type=click.Path(exists=True, dir_okay=False))
 @click.argument('columns', nargs=-1)
 @click.option('-i', '--ignore', type=click.Choice(list(sequence_disorder.keys())), multiple=True,
-              help='Ignore the chosen server when calculating dscore, but still include it in the servers plot. '
-                   'Can be passed multiple times to ignore multiple servers.')
+              help='Ignore the chosen column when calculating dscore, but still include it in the servers plot. '
+                   'Can be passed multiple times to ignore multiple columns.')
 def dscore_plot(dscore, columns, ignore):
     """
     Recalculate dscore and plots from an existing .dscore file by using
@@ -55,6 +57,8 @@ def dscore_plot(dscore, columns, ignore):
 
     DSCORE: an existing .dscore file
     COLUMNS: any number of columns from the .dscore file to use
+
+    Note: metapredict is automatically ignored for the calculation of dscore.
     """
     if not columns:
         return
