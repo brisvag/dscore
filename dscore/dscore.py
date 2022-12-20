@@ -96,8 +96,12 @@ def _parse_inputs(seq, save_dir):
     return sequences, save_path
 
 
-def dscore(seq, save_as_csv=False, save_dir='.', name=None, server_list=None):
+def dscore(seq, save_as_csv=False, save_dir='.', name=None, server_list=None, ignore=()):
     sequences, save_path = _parse_inputs(seq, save_dir)
+
+    # metapredict is a meta-result and includes many servers we already use,
+    # so it should be ignored for the purposes of dscore calculation
+    ignore = ['metapredict'] + list(ignore)
 
     if server_list is None:
         server_list = sequence_disorder.keys()

@@ -43,7 +43,7 @@ def submit_and_get_result(seq):
 
 def parse_result(result):
     df = csv2frame(result, header=0)
-    df = df[mode_headers]
+    df = df[list(mode_headers)]
     df.columns = [f'pondr_{mode}' for mode in mode_headers]
     return df >= cutoff
 

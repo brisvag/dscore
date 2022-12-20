@@ -1,10 +1,10 @@
 import pandas as pd
 
 
-def pre_format_result(result, seq, score_type='d'):
+def pre_format_result(result, seq, score_type='d', exclude=()):
     result = result.copy()
-    # add score
-    score = result.mean(axis=1).astype(float)
+    # ignore excluded columns from score and get score
+    score = result.drop(columns=exclude, errors='ignore').mean(axis=1).astype(float)
     result[score_type + 'score_raw'] = 1 - score
     result[score_type + 'score'] = score >= 0.5
     # add residue column
