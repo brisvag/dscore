@@ -38,7 +38,6 @@ def submit(seq):
 def parse_result(save_dir):
     file = Path(tmp_dir) / save_dir / 'disorder_scores.csv'
     raw_data = pd.read_csv(file, sep=', ', engine='python')
-    os.remove(file)
     dis_array = raw_data['Disorder'] >= 0.5
     df = pd.DataFrame({'metapredict': dis_array})
     return df

@@ -6,7 +6,8 @@ from ..utils import csv2frame, ensure_and_log
 
 base_url = 'http://www.pondr.com/'
 cutoff = 0.5
-modes = ('XL1', 'CAN')
+modes = ('VLXT', 'XL1', 'CAN', 'VL3', 'VSL2')
+mode_headers = ('VLXT', 'XL1_XT', 'CAN_XT', 'VL3', 'VSL2')
 
 
 def submit_and_get_result(seq):
@@ -42,8 +43,8 @@ def submit_and_get_result(seq):
 
 def parse_result(result):
     df = csv2frame(result, header=0)
-    df = df[['XL1_XT', 'CAN_XT']]
-    df.columns = [f'pondr_{mode}' for mode in modes]
+    df = df[mode_headers]
+    df.columns = [f'pondr_{mode}' for mode in mode_headers]
     return df >= cutoff
 
 

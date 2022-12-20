@@ -8,16 +8,20 @@ from ..utils import retry, JobNotDone, csv2frame, ensure_and_log
 
 base_url = 'http://original.disprot.org/metapredictor.php'
 cutoff = 0.5
-modes = ('VSL2', 'VL3', 'VLXT', 'PONDRFIT')
+modes = ('PONDRFIT',)
+unwanted_modes = ('VSL2', 'VL3', 'VLXT')  # already done by pondr
+mode_headers = ('PONDR-FIT',)
 
 
 def submit(seq):
     driver = webdriver.Firefox()
     driver.get(base_url)
     # tick all the boxes
-    for name in modes:
-        checkbox = driver.find_element(By.NAME, name)
-        if not checkbox.is_selected():
+    for mode in modes + unwanted_modes:
+        checkbox = driver.find_element(By.NAME, mode)
+        if not checkbox.is_selected() and mode in modes:
+            checkbox.click()
+        elif checkbox.is_selected() and mode in unwanted_modes:
             checkbox.click()
     # ">" symbol is needed for this server to recognise as fasta
     seq = '> none\n' + seq
@@ -29,21 +33,20 @@ def submit(seq):
 
 @retry()
 def get_results(driver):
-    names = ('VSL2', 'VSL3', 'VLXT', 'PONDR-FIT')
     results = {}
     urls = []
-    for name in names:  # different from earlier, for some reason...
+    for mode in mode_headers:  # different from earlier, for some reason...
         try:
-            element = driver.find_element(By.XPATH, f'/html/body/center[1]/a[contains(text(), "{name}")]')
+            element = driver.find_element(By.XPATH, f'/html/body/center[1]/a[contains(text(), "{mode}")]')
         except NoSuchElementException:
             raise JobNotDone
         result_url = element.get_property('href')
         # save all of them before moving away
         urls.append(result_url)
-    for name, url in zip(names, urls):
+    for mode, url in zip(mode_headers, urls):
         driver.get(url)
         result = driver.find_element(By.XPATH, '/html/body/pre').text
-        results[name] = result
+        results[mode] = result
     driver.quit()
     return results
 

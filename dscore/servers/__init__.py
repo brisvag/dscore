@@ -40,3 +40,5 @@ sequence_complexity = {
 by_speed = {'fast': ['disembl', 'disprot', 'globplot', 'iupred_S', 'iupred_L', 'pondr', 'espritz_xray', 'espritz_nmr', 'espritz_disprot', 'metapredict', 'foldindex']}
 by_speed['normal'] = by_speed['fast'] + ['prdos', 'disopred']
 by_speed['slow'] = by_speed['normal'] + ['jpred']
+
+assert all(s in sequence_disorder for servers in by_speed.values() for s in servers)
