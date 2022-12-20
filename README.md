@@ -82,6 +82,14 @@ dscore <sequence_or_fasta_file>
 
 Use the `--help` option for more information.
 
+---
+
+You can also generate a new dscore and new plots from a subset of columns of an existing `.dscore` file:
+
+```
+dscore_plot <dscore_file> <column> <other_column>
+```
+
 # References
 
 This tool implements a simple automated version of the D-score calculation and analysis performed in the paper [Modular organization of rabies virus phosphoprotein](https://doi.org/10.1016/j.jmb.2009.03.061) by F. Gerard et Al.
