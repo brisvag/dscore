@@ -51,4 +51,3 @@ def parse_result(result):
 async def get_pondr(seq):
     result = submit_and_get_result(seq)
     return parse_result(result)
-

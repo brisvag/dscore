@@ -56,12 +56,12 @@ def start_threads(seq, server_list, df):
     return threads
 
 
-def wait_threads(threads, progress):
+def wait_threads(threads, progress, name):
     """
     wait for threads to finish, but fail gracefully if interrupted
     """
     all_threads = [thread.name for thread in threads]
-    task = progress.add_task('querying servers', total=len(all_threads))
+    task = progress.add_task(f'querying servers for {name}', total=len(all_threads))
     try:
         while not_done := [thread.name for thread in threads if thread.is_alive()]:
             progress.update(task, completed=len(all_threads) - len(not_done))
@@ -79,7 +79,7 @@ def run_multiple_sequences(sequences, server_list, progress):
     for name, seq in sequences.items():
         df = pd.DataFrame()
         threads = start_threads(seq, server_list, df)
-        wait_threads(threads, progress)
+        wait_threads(threads, progress, name)
         results[name] = df
     return results
 
