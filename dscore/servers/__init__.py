@@ -23,6 +23,7 @@ sequence_disorder = {
     'espritz_disprot': get_espritz_disprot,
     'espritz_nmr': get_espritz_nmr,
     'espritz_xray': get_espritz_xray,
+    'foldindex': get_foldindex,
     'globplot': get_globplot,
     'iupred_L': get_iupred_long,
     'iupred_S': get_iupred_short,
@@ -32,14 +33,10 @@ sequence_disorder = {
     'prdos': get_prdos,
 }
 
-general_disorder = {
-    'foldindex': get_foldindex,
-}
-
 sequence_complexity = {
     'seg': get_seg,
 }
 
-by_speed = {'fast': ['disembl', 'disprot', 'globplot', 'iupred_S', 'iupred_L', 'pondr', 'espritz_xray', 'espritz_nmr', 'espritz_disprot', 'metapredict']}
+by_speed = {'fast': ['disembl', 'disprot', 'globplot', 'iupred_S', 'iupred_L', 'pondr', 'espritz_xray', 'espritz_nmr', 'espritz_disprot', 'metapredict', 'foldindex']}
 by_speed['normal'] = by_speed['fast'] + ['prdos', 'disopred']
 by_speed['slow'] = by_speed['normal'] + ['jpred']
